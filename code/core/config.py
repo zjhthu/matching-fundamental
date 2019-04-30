@@ -53,7 +53,7 @@ net_arg.add_argument(
     "--num_clusters", type=int, default=500, help=""
     "cluster num in oanet")
 net_arg.add_argument(
-    "--kpt_only", type=str2bool, default=False, help=""
+    "--kpt_only", type=str2bool, default=True, help=""
     "input kpt only")
 net_arg.add_argument(
     "--pretrain_corrnet", type=str, default='../../model/corrnet/yfcc/ours/superpoint/model_best.pth', help=""

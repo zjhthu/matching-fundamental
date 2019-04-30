@@ -190,7 +190,7 @@ def weighted_8points(x_in, logits, T1s, T2s):
     # Recover essential matrix from self-adjoing eigen
     v = batch_symeig(XwX)
     e_hat = torch.reshape(v[:, :, 0], (x_shp[0], 9))
-    e_hat = torch.matmul(torch.matmul(T2.transpose(1,2), e_hat.reshape(B,3,3)), T1)
+    e_hat = torch.matmul(torch.matmul(T2s.transpose(1,2), e_hat.reshape(-1,3,3)), T1s)
     e_hat = e_hat.reshape(-1,9)
     
     # Make unit norm just in case

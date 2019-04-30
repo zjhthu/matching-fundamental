@@ -4,6 +4,7 @@ import torch
 import glob
 import os
 import pickle
+import h5py
 
 def collate_fn(batch):
     batch_size = len(batch)
@@ -12,7 +13,7 @@ def collate_fn(batch):
 
     data = {}
     data['imgs'], data['K1s'], data['K2s'], data['Rs'], \
-        data['ts'], data['kpt'], data['ys'], data['T1s'], data['T2s']  = [], [], [], [], [], [], []
+        data['ts'], data['kpt'], data['ys'], data['T1s'], data['T2s']  = [], [], [], [], [], [], [], [], []
     for sample in batch:
         data['imgs'].append(sample['img1'])
         data['imgs'].append(sample['img2'])
@@ -48,20 +49,20 @@ class MatchingDataset(torch.utils.data.Dataset):
         #index = 169
         img1 = None
         img2 = None
-        cx1 = self.data['cx1s'][str(index)]
-        cy1 = self.data['cy1s'][str(index)]
-        cx2 = self.data['cx2s'][str(index)]
-        cy2 = self.data['cy2s'][str(index)]
-        f1 = self.data['f1s'][str(index)]
-        f2 = self.data['f2s'][str(index)]
-        xs = self.data['xs'][str(index)]
-        ys = self.data['ys'][str(index)]
+        cx1 = np.asarray(self.data['cx1s'][str(index)])
+        cy1 = np.asarray(self.data['cy1s'][str(index)])
+        cx2 = np.asarray(self.data['cx2s'][str(index)])
+        cy2 = np.asarray(self.data['cy2s'][str(index)])
+        f1 = np.asarray(self.data['f1s'][str(index)])
+        f2 = np.asarray(self.data['f2s'][str(index)])
+        xs = np.asarray(self.data['xs'][str(index)])
+        ys = np.asarray(self.data['ys'][str(index)])
         # if type(f1) != tuple:
         #     f1 = (f1,f1)
         # if type(f2) != tuple:
         #     f2 = (f2,f2)  
-        R = self.data['Rs'][index]
-        t = self.data['ts'][index]
+        R = np.asarray(self.data['Rs'][str(index)])
+        t = np.asarray(self.data['ts'][str(index)])
         K1 = np.asarray([
             [f1[0], 0, cx1[0]],
             [0, f1[1], cy1[0]],
@@ -81,16 +82,16 @@ class MatchingDataset(torch.utils.data.Dataset):
         x1, x2 = xs[0,:,:2], xs[0,:,2:4]
         x1 = x1 * np.asarray([K1[0,0], K1[1,1]]) + np.array([K1[0,2], K1[1,2]])
         x2 = x2 * np.asarray([K2[0,0], K2[1,1]]) + np.array([K2[0,2], K2[1,2]])
-        x1_mean, x2_mean = np.mean(x1, axis=1), np.mean(x2, axis=2)
+        x1_mean, x2_mean = np.mean(x1, axis=1), np.mean(x2, axis=1)
         x1_std, x2_std = np.std(x1, axis=(0,1)), np.std(x2, axis=(0,1))
-        T1, T2 = np.zeros(3,3), np.zeros(3,3)
+        T1, T2 = np.zeros([3,3]), np.zeros([3,3])
         T1[0,0], T1[1,1], T1[2,2] = np.sqrt(2)/x1_std, np.sqrt(2)/x1_std, 1
         T1[0,2], T1[1,2] = -np.sqrt(2)/x1_std*x1_mean[0], -np.sqrt(2)/x1_std*x1_mean[1]
         T2[0,0], T2[1,1], T2[2,2] = np.sqrt(2)/x2_std, np.sqrt(2)/x2_std, 1
         T2[0,2], T2[1,2] = -np.sqrt(2)/x2_std*x2_mean[0], -np.sqrt(2)/x2_std*x2_mean[1]
-        x1 = np.dot(np.concatenate([x1, np.ones(x1.shape[0,],1)], axis=-1), T1.T)[:,:2]
-        x2 = np.dot(np.concatenate([x2, np.ones(x2.shape[0,],1)], axis=-1), T2.T)[:,:2]
-        xs = np.concatenate([x1,x2],axis=-1)
+        x1 = np.dot(np.concatenate([x1, np.ones([x1.shape[0],1])], axis=-1), T1.T)[:,:2]
+        x2 = np.dot(np.concatenate([x2, np.ones([x2.shape[0],1])], axis=-1), T2.T)[:,:2]
+        xs = np.concatenate([x1,x2],axis=-1).reshape(1,-1,4)
 
         return {'img1':img1, 'img2':img2, 'K1':K1, 'K2':K2, 'R':R, 't':t, 'xs':xs, 'ys':ys, 'T1':T1, 'T2':T2}
 

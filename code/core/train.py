@@ -22,8 +22,9 @@ def train_step(step, optimizer, model, data, config):
     model.train()
     det_logits, kpt_desc, corr, corr_logits, e_hat = model(data)
     if corr is not None:
+        import pdb;pdb.set_trace()
         loss_geo, gt_geod_d, loss_ess_val, loss_corr_cla_val = geo_loss(step, corr, data['Rs'], data['ts'], corr_logits, e_hat, config)
-        loss_det, loss_det_val = detector_loss(det_logits, data['kpt_map'], config)
+        #loss_det, loss_det_val = detector_loss(det_logits, data['kpt_map'], config)
 
         '''
         for batch_idx in range(data['K1s'].shape[0]):
@@ -39,7 +40,8 @@ def train_step(step, optimizer, model, data, config):
                 )
         #import pdb;pdb.set_trace()
         '''
-        loss = loss_geo+loss_det
+        #loss = loss_geo+loss_det
+        loss = loss_geo
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()

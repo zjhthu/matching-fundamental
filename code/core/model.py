@@ -63,6 +63,6 @@ class CorrModel(torch.nn.Module):
   def forward(self, data):
     logits = self.oan(data['kpt'])
     e_hat = weighted_8points(data['kpt'], logits, data['T1s'], data['T2s'])
-    return data['kpt'], None, logits, e_hat
+    return None, None, data['kpt'], logits, e_hat
 
 

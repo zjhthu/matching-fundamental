@@ -8,7 +8,7 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES'] = config.gpu_id
 import torch.utils.data
 import sys
-sys.path.append('../data')
+sys.path.append('../dataset')
 
 if not config.kpt_only:
     from img_data import collate_fn, MatchingDataset
@@ -52,7 +52,7 @@ def main(config):
 
         train_loader = torch.utils.data.DataLoader(
                 train_dataset, batch_size=config.train_batch_size, shuffle=True,
-                num_workers=8, pin_memory=False, collate_fn=collate_fn)
+                num_workers=0, pin_memory=False, collate_fn=collate_fn)
 
         valid_dataset = MatchingDataset(config.data_va, config)
         valid_loader = torch.utils.data.DataLoader(
