@@ -1,0 +1,11 @@
+model/
+sample/
+*th
+__pycache__
+*jpg
+*png
+data/
+data
+log/
+*.DS_Store
+*pyc
